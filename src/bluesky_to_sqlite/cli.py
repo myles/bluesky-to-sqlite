@@ -2,13 +2,10 @@ from pathlib import Path
 
 import click
 
-from bluesky_to_sqlite.core import save_followers, save_follows
-from bluesky_to_sqlite.service.db import (
-    open_database,
-)
-
+from .core import save_followers, save_follows
 from .service.auth_file import create_auth_file, get_auth_file
 from .service.client import get_client, verify_auth
+from .service.db import open_database
 
 cli_argument_db_path = click.argument(
     "db_file_path",

@@ -1,13 +1,13 @@
 from atproto import Client
 from sqlite_utils import Database
 
-from bluesky_to_sqlite.service.client import get_followers, get_follows
-from bluesky_to_sqlite.service.db import (
+from .service.client import get_followers, get_follows
+from .service.db import (
     build_database,
     save_following,
     save_profiles,
 )
-from bluesky_to_sqlite.service.parsers import parse_profile
+from .service.parsers import parse_profile
 
 
 def save_followers(db: Database, client: Client):
