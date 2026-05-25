@@ -1,11 +1,19 @@
 import json
 from pathlib import Path
-from typing import Optional
-
-from atproto import Client
+from typing import TypedDict
 
 
-def get_auth_file(auth_file_path: Path) -> dict:
+class AuthData(TypedDict):
+    pds_url: str
+    username: str
+    password: str
+
+
+def get_auth_file(auth_file_path: Path) -> AuthData:
+    """
+    Reads the authentication file and returns the authentication data as
+    a dictionary.
+    """
     if not auth_file_path.exists():
         raise FileNotFoundError(
             f"Authentication file {auth_file_path} does not exist."
@@ -18,19 +26,10 @@ def get_auth_file(auth_file_path: Path) -> dict:
 def create_auth_file(
     auth_file_path: Path, *, pds_url: str, username: str, password: str
 ):
+    """
+    Creates an authentication file with the provided PDS URL, username,
+    and password. The authentication data is stored in JSON format.
+    """
     auth_data = {"pds_url": pds_url, "username": username, "password": password}
     with auth_file_path.open("w") as auth_file_obj:
         json.dump(auth_data, auth_file_obj, indent=2)
-
-
-def get_client(
-    username: str, password: str, pds_url: Optional[str] = None
-) -> Client:
-    client = Client(base_url=pds_url)
-    client.login(login=username, password=password)
-    return client
-
-
-def verify_auth(client: Client):
-    client.get_current_time()
-    return True

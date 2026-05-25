@@ -2,9 +2,27 @@ from pathlib import Path
 
 import click
 
-from . import service
+from bluesky_to_sqlite.core import save_followers, save_follows
+from bluesky_to_sqlite.service.db import (
+    open_database,
+)
 
-cli_option_auth_file = click.option(
+from .service.auth_file import create_auth_file, get_auth_file
+from .service.client import get_client, verify_auth
+
+cli_argument_db_path = click.argument(
+    "db_file_path",
+    type=click.Path(
+        file_okay=True,
+        dir_okay=False,
+        writable=True,
+        readable=True,
+        path_type=Path,
+    ),
+    required=True,
+)
+
+cli_option_auth_path = click.option(
     "-a",
     "--auth",
     "auth_file_path",
@@ -29,9 +47,9 @@ def cli():
     ...
 
 
-@cli.command()
-@cli_option_auth_file
-def auth(auth_file_path: Path):
+@cli.command("auth")
+@cli_option_auth_path
+def cli_auth(auth_file_path: Path):
     """Save your Bluesky authentication credentials to a JSON file."""
     if auth_file_path.exists():
         click.echo(f"Authentication file {auth_file_path} already exists.")
@@ -59,32 +77,62 @@ def auth(auth_file_path: Path):
     # the PDS.
     click.echo("Authenticating with Bluesky...")
     try:
-        client = service.get_client(
+        client = get_client(
             username=username, password=password, pds_url=pds_url
         )
-        service.verify_auth(client)
+        verify_auth(client)
         click.echo("Authentication successful!")
     except Exception as e:
         click.echo(f"Authentication failed: {e}")
         return
 
-    service.create_auth_file(
+    create_auth_file(
         auth_file_path, pds_url=pds_url, username=username, password=password
     )
     click.echo(f"Authentication credentials saved to {auth_file_path}")
 
 
-@cli.command()
-@cli_option_auth_file
-def verify_auth(auth_file_path: Path):
+@cli.command("verify-auth")
+@cli_option_auth_path
+def cli_verify_auth(auth_file_path: Path):
     """
     Verify the authentication to the Mastodon server.
     """
-    auth = service.get_auth_file(auth_file_path)
-    client = service.get_client(**auth)
+    auth = get_auth_file(auth_file_path)
+    client = get_client(**auth)
 
     try:
-        service.verify_auth(client)
+        verify_auth(client)
         click.echo("Successfully authenticated with the PDS.")
     except Exception as e:
         click.echo(f"Failed to authenticated with the PDS: {e}", err=True)
+
+
+@cli.command("followers")
+@cli_argument_db_path
+@cli_option_auth_path
+def cli_followers(db_file_path: Path, auth_file_path: Path):
+    """
+    Get the followers of the authenticated user.
+    """
+    db = open_database(db_file_path)
+
+    auth = get_auth_file(auth_file_path)
+    client = get_client(**auth)
+
+    return save_followers(db, client)
+
+
+@cli.command("follows")
+@cli_argument_db_path
+@cli_option_auth_path
+def cli_follows(db_file_path: Path, auth_file_path: Path):
+    """
+    Get the follows of the authenticated user.
+    """
+    db = open_database(db_file_path)
+
+    auth = get_auth_file(auth_file_path)
+    client = get_client(**auth)
+
+    return save_follows(db, client)
