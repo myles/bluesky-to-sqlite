@@ -63,7 +63,7 @@ def cli_auth(auth_file_path: Path, overwrite: bool = False):
     click.echo("Please enter your Bluesky authentication credentials.")
 
     pds_url = click.prompt(
-        "PDS URL (e.g. https://bsky.app)", default="https://bsky.app"
+        "PDS URL (e.g. https://bsky.social)", default="https://bsky.social"
     )
 
     username = click.prompt("Username (email or handle)")
