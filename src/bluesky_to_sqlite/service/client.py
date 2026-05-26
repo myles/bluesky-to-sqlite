@@ -1,5 +1,3 @@
-from atproto_client.models.app.bsky.feed.defs import FeedViewPost
-from atproto_client.models.app.bsky.feed.get_likes import Like
 from typing import Generator, Optional, Union
 
 from atproto import Client
@@ -7,6 +5,7 @@ from atproto_client.models.app.bsky.actor.defs import (
     ProfileView,
     ProfileViewDetailed,
 )
+from atproto_client.models.app.bsky.feed.defs import FeedViewPost
 
 
 def get_client(
@@ -71,7 +70,9 @@ def get_likes(
     """
     cursor: Union[str, None] = ""
     while cursor is not None:
-        result = client.app.bsky.feed.get_actor_likes(dict(actor=actor, limit=50, cursor=cursor))
+        result = client.app.bsky.feed.get_actor_likes(
+            dict(actor=actor, limit=50, cursor=cursor)
+        )
         cursor = result.cursor
         for like in result.feed:
             yield like

@@ -1,11 +1,12 @@
-from atproto_client.models.app.bsky.feed.defs import PostView
 import datetime
 from typing import TypedDict, Union
 
 from atproto_client.models.app.bsky.actor.defs import (
     ProfileView,
-    ProfileViewDetailed, ProfileViewBasic,
+    ProfileViewBasic,
+    ProfileViewDetailed,
 )
+from atproto_client.models.app.bsky.feed.defs import PostView
 from atproto_client.models.string_formats import DateTime
 
 
@@ -73,7 +74,9 @@ def parse_profile(
         "created_at": parse_datetime(profile.created_at),
     }
 
-    if isinstance(profile, ProfileView) or isinstance(profile, ProfileViewDetailed):
+    if isinstance(profile, ProfileView) or isinstance(
+        profile, ProfileViewDetailed
+    ):
         data["description"] = profile.description
 
     return data

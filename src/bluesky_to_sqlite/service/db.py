@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Union
 
 from sqlite_utils.db import Database, Table
 
-from .parsers import ParsedProfile, ParsedPost
+from .parsers import ParsedPost, ParsedProfile
 
 
 def open_database(db_file_path: Path) -> Database:

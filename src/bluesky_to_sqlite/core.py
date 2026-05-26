@@ -5,11 +5,11 @@ from .service.client import get_followers, get_follows, get_likes
 from .service.db import (
     build_database,
     save_following,
+    save_likes,
+    save_posts,
     save_profiles,
-save_likes,
-save_posts
 )
-from .service.parsers import parse_profile, parse_post,parse_datetime, parse_post, parse_profile
+from .service.parsers import parse_post, parse_profile
 
 
 def save_followers(db: Database, client: Client):
