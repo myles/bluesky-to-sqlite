@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.11]
+
+    steps:
+      - id: checkout
+        name: "Checkout 🛎"
+        uses: actions/checkout@v4
+
+      - id: setup-python
+        name: "Setup Python ${{ matrix.python-version }} 🏗"
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - id: setup-uv
+        name: "Install uv ☀️"
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+
+      - id: get-cache-uv-directory
+        name: "Get uv's cache directory 🔎"
+        run: |
+          echo "::set-output name=dir::$(uv cache dir)"
+
+      - id: cache-uv-directory
+        name: "Cache uv 📦"
+        uses: actions/cache@v3.0.11
+        with:
+          path: ${{ steps.get-cache-uv-directory.outputs.dir }}
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
+          restore-keys: ${{ runner.os }}-uv-
+
+      - id: install-dependencies
+        name: "Install dependencies 👨🏻‍💻"
+        run: make setup
+
+      - id: uv-lock
+        name: "Run uv lock 📌"
+        run: uv lock --check
+
+      - id: run-test
+        name: "Run tests 🧪"
+        run: make test
+
+      - id: run-linters
+        name: "Run linters 🚨"
+        run: make lint
+m
