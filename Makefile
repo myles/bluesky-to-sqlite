@@ -4,7 +4,7 @@ setup:
 
 .PHONY: test
 test:
-	uv run pytest --cov=bluesky_to_sqlite/ --cov-report=xml
+	uv run pytest --cov=bluesky_to_sqlite --cov-report=xml
 
 .PHONY: lint
 lint: ruff/check ruff/format ty
