@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Union
 
 from sqlite_utils.db import Database, Table
 
-from .parsers import ParsedProfile
+from .parsers import ParsedProfile, ParsedPost
 
 
 def open_database(db_file_path: Path) -> Database:
@@ -55,18 +55,77 @@ def build_database(db: Database):
     if ("followed_did",) not in following_indexes:
         following_table.create_index(["followed_did"])
 
+    # Create the posts table if it doesn't already exist.
+    posts_table: Table = get_table("posts", db)
+    if posts_table.exists() is False:
+        posts_table.create(
+            columns={
+                "cid": str,
+                "author_did": str,
+                "record_text": str,
+                "record_created_at": str,
+                "indexed_at": str,
+            },
+            pk="cid",
+            foreign_keys=(("author_did", "actors", "did"),),
+        )
+
+    posts_indexes = {tuple(i.columns) for i in posts_table.indexes}
+    if ("cid",) not in posts_indexes:
+        posts_table.create_index(["cid"])
+    if ("author_did",) not in posts_indexes:
+        posts_table.create_index(["author_did"])
+
+    likes_table: Table = get_table("likes", db)
+    if likes_table.exists() is False:
+        likes_table.create(
+            columns={
+                "liker_did": str,
+                "post_cid": str,
+                "liked_at": str,
+            },
+            pk=["liker_did", "post_cid"],
+            foreign_keys=(
+                ("liker_did", "actors", "did"),
+                ("post_cid", "posts", "cid"),
+            ),
+        )
+
+    likes_indexes = {tuple(i.columns) for i in likes_table.indexes}
+    if ("liker_did",) not in likes_indexes:
+        likes_table.create_index(["liker_did"])
+    if ("post_cid",) not in likes_indexes:
+        likes_table.create_index(["post_cid"])
+
+
+def save_posts(posts: List[ParsedPost], db: Database):
+    """Save a list of posts to the database."""
+    posts_table = get_table("posts", db)
+    posts_table.upsert_all(posts, pk="cid")
+
 
 def save_profiles(profiles: List[ParsedProfile], db: Database):
     """Save a list of profiles to the database."""
     profiles_table = get_table("profiles", db)
-    profiles_table.insert_all(profiles, pk="did", replace=True)
+    profiles_table.upsert_all(profiles, pk="did")
 
 
 def save_following(following: List[tuple[str, str]], db: Database):
     """Save a list of following relationships to the database."""
     following_table = get_table("following", db)
-    following_table.insert_all(
+    following_table.upsert_all(
         [{"follower_did": f[0], "followed_did": f[1]} for f in following],
         pk=["follower_did", "followed_did"],
-        replace=True,
+    )
+
+
+def save_likes(likes: List[tuple[str, str, Union[str, None]]], db: Database):
+    """Save a list of likes to the database."""
+    likes_table = get_table("likes", db)
+    likes_table.upsert_all(
+        [
+            {"liker_did": l[0], "post_cid": l[1], "liked_at": l[2]}
+            for l in likes
+        ],
+        pk=["liker_did", "post_cid"],
     )

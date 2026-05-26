@@ -1,3 +1,5 @@
+from atproto_client.models.app.bsky.feed.defs import FeedViewPost
+from atproto_client.models.app.bsky.feed.get_likes import Like
 from typing import Generator, Optional, Union
 
 from atproto import Client
@@ -59,3 +61,17 @@ def get_follows(
         cursor = result.cursor
         for follower in result.follows:
             yield follower
+
+
+def get_likes(
+    actor: str, client: Client
+) -> Generator[FeedViewPost, None, None]:
+    """
+    Returns a list of likes for the authenticated user.
+    """
+    cursor: Union[str, None] = ""
+    while cursor is not None:
+        result = client.app.bsky.feed.get_actor_likes(dict(actor=actor, limit=50, cursor=cursor))
+        cursor = result.cursor
+        for like in result.feed:
+            yield like

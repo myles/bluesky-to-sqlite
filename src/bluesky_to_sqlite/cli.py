@@ -2,7 +2,7 @@ from pathlib import Path
 
 import click
 
-from .core import save_followers, save_follows
+from .core import save_followers, save_follows, save_like_posts
 from .service.auth_file import create_auth_file, get_auth_file
 from .service.client import get_client, verify_auth
 from .service.db import open_database
@@ -133,3 +133,18 @@ def cli_follows(db_file_path: Path, auth_file_path: Path):
     client = get_client(**auth)
 
     return save_follows(db, client)
+
+
+@cli.command("likes")
+@cli_argument_db_path
+@cli_option_auth_path
+def cli_likes(db_file_path: Path, auth_file_path: Path):
+    """
+    Get the likes of the authenticated user.
+    """
+    db = open_database(db_file_path)
+
+    auth = get_auth_file(auth_file_path)
+    client = get_client(**auth)
+
+    return save_like_posts(db, client)
