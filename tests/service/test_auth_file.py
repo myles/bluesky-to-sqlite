@@ -28,7 +28,10 @@ def test_get_auth_file(tmp_path):
 def test_get_auth_file__not_found(tmp_path):
     with pytest.raises(FileNotFoundError) as exc_info:
         get_auth_file(tmp_path / "nonexistent.json")
-    assert str(exc_info.value) == f"Authentication file {tmp_path / 'nonexistent.json'} does not exist."
+    assert (
+        str(exc_info.value)
+        == f"Authentication file {tmp_path / 'nonexistent.json'} does not exist."
+    )
 
 
 def test_get_auth_file__missing_fields(tmp_path):
@@ -39,7 +42,10 @@ def test_get_auth_file__missing_fields(tmp_path):
 
     with pytest.raises(ValueError) as exc_info:
         get_auth_file(file_path)
-    assert str(exc_info.value) == f"Authentication file {file_path} is missing required fields."
+    assert (
+        str(exc_info.value)
+        == f"Authentication file {file_path} is missing required fields."
+    )
 
 
 def test_create_auth_file(tmp_path):
@@ -81,7 +87,10 @@ def test_create_auth_file__overwrite(tmp_path):
             password="newpass",
             overwrite=False,
         )
-    assert str(exc_info.value) == f"Authentication file {file_path} already exists."
+    assert (
+        str(exc_info.value)
+        == f"Authentication file {file_path} already exists."
+    )
 
     create_auth_file(
         file_path,
