@@ -55,6 +55,14 @@ There are a few different commands for pulling data out of your Bluesky account.
 bluesky-to-sqlite <command> bluesky.db
 ```
 
+#### Posts you liked
+
+Save the posts you have liked:
+
+```bash
+bluesky-to-sqlite likes bluesky.db
+```
+
 #### Accounts you are following
 
 Save the accounts you follow into a `following` table:
