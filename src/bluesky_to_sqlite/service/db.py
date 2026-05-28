@@ -72,8 +72,6 @@ def build_database(db: Database):
         )
 
     posts_indexes = {tuple(i.columns) for i in posts_table.indexes}
-    if ("cid",) not in posts_indexes:
-        posts_table.create_index(["cid"])
     if ("author_did",) not in posts_indexes:
         posts_table.create_index(["author_did"])
 

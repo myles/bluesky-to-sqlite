@@ -128,4 +128,4 @@ def get_posts(
         for post in result.posts:
             yield post
 
-        logger.debug("Fetched %d posts for URIs: %s", len(result.posts), chunk)
+        logger.debug("Fetched %d posts for URIs.", len(result.posts))
