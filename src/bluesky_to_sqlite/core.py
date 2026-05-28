@@ -44,7 +44,7 @@ def save_follows(db: Database, client: Client):
     """
     if not client.me:
         raise ValueError(
-            "Client is not authenticated. Please authenticate before saving followers."
+            "Client is not authenticated. Please authenticate before saving follows."
         )
 
     build_database(db)
@@ -70,7 +70,7 @@ def save_like_posts(db: Database, client: Client):
     """
     if not client.me:
         raise ValueError(
-            "Client is not authenticated. Please authenticate before saving followers."
+            "Client is not authenticated. Please authenticate before saving liked posts."
         )
 
     build_database(db)

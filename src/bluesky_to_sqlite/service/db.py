@@ -68,7 +68,7 @@ def build_database(db: Database):
                 "indexed_at": str,
             },
             pk="cid",
-            foreign_keys=(("author_did", "actors", "did"),),
+            foreign_keys=(("author_did", "profiles", "did"),),
         )
 
     posts_indexes = {tuple(i.columns) for i in posts_table.indexes}
@@ -87,7 +87,7 @@ def build_database(db: Database):
             },
             pk=["liker_did", "post_cid"],
             foreign_keys=(
-                ("liker_did", "actors", "did"),
+                ("liker_did", "profiles", "did"),
                 ("post_cid", "posts", "cid"),
             ),
         )
@@ -123,7 +123,4 @@ def save_following(following: List[tuple[str, str]], db: Database):
 def save_likes(likes: List[ParsedLike], db: Database):
     """Save a list of likes to the database."""
     likes_table = get_table("likes", db)
-    likes_table.upsert_all(
-        [like for like in likes],
-        pk=["liker_did", "post_cid"],
-    )
+    likes_table.upsert_all(likes, pk=["liker_did", "post_cid"])

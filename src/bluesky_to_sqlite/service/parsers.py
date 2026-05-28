@@ -26,7 +26,7 @@ def parse_datetime(
     return ciso8601.parse_datetime(timestamp)
 
 
-class ParsedPost(TypedDict, total=False):
+class ParsedPost(TypedDict):
     uri: str
     cid: str
     author_did: str
@@ -54,7 +54,7 @@ def parse_post(post: PostView) -> ParsedPost:
     }
 
 
-class ParsedLike(TypedDict, total=False):
+class ParsedLike(TypedDict):
     liker_did: str
     post_cid: str
     liked_at: Union[datetime.datetime, None]

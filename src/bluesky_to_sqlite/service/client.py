@@ -127,3 +127,5 @@ def get_posts(
         result = client.app.bsky.feed.get_posts(dict(uris=chunk))
         for post in result.posts:
             yield post
+
+        logger.debug("Fetched %d posts for URIs: %s", len(result.posts), chunk)
