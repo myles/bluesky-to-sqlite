@@ -1,5 +1,6 @@
-from pathlib import Path
 import logging
+from pathlib import Path
+
 import click
 
 from .core import save_followers, save_follows, save_like_posts

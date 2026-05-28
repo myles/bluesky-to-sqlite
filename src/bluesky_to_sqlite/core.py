@@ -9,7 +9,7 @@ from .service.db import (
     save_posts,
     save_profiles,
 )
-from .service.parsers import parse_post, parse_profile, parse_like
+from .service.parsers import parse_like, parse_post, parse_profile
 
 
 def save_followers(db: Database, client: Client):

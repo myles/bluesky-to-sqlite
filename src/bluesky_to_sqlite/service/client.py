@@ -1,15 +1,15 @@
-from atproto_client.namespaces.async_ns import AppBskyFeedLikeRecord
 import logging
-from typing import Generator, Optional, Union, List
+from typing import Generator, List, Optional, Union
 
 from atproto import Client
 from atproto_client.models.app.bsky.actor.defs import (
     ProfileView,
     ProfileViewDetailed,
 )
-from atproto_client.models.app.bsky.feed.defs import FeedViewPost, PostView
-from atproto_client.models.com.atproto.repo.list_records import Record as ListRecordsRecord
-
+from atproto_client.models.app.bsky.feed.defs import PostView
+from atproto_client.models.com.atproto.repo.list_records import (
+    Record as ListRecordsRecord,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,9 @@ def get_followers(
         for follower in result.followers:
             yield follower
 
-        logger.debug("Fetched %d followers for actor: %s", len(result.followers), actor)
+        logger.debug(
+            "Fetched %d followers for actor: %s", len(result.followers), actor
+        )
 
 
 def get_follows(
@@ -73,7 +75,9 @@ def get_follows(
         for follower in result.follows:
             yield follower
 
-        logger.debug("Fetched %d follows for actor: %s", len(result.follows), actor)
+        logger.debug(
+            "Fetched %d follows for actor: %s", len(result.follows), actor
+        )
 
 
 def get_likes(
@@ -101,16 +105,23 @@ def get_likes(
         for record in result.records:
             yield record
 
-        logger.debug("Fetched %d likes for actor: %s", len(result.records), actor_id)
+        logger.debug(
+            "Fetched %d likes for actor: %s", len(result.records), actor_id
+        )
 
 
-def get_posts(uris: List[str], client: Client) -> Generator[PostView, None, None]:
+def get_posts(
+    uris: List[str], client: Client
+) -> Generator[PostView, None, None]:
     """
     Returns a list of posts for the given URIs.
     """
     # The app.bsky.feed.getPosts endpoint can only handle 25 URIs at a time, so we need to batch the requests.
     uris_batch_size = 25
-    uri_chunks = [uris[i:i + uris_batch_size] for i in range(0, len(uris), uris_batch_size)]
+    uri_chunks = [
+        uris[i : i + uris_batch_size]
+        for i in range(0, len(uris), uris_batch_size)
+    ]
 
     for chunk in uri_chunks:
         result = client.app.bsky.feed.get_posts(dict(uris=chunk))

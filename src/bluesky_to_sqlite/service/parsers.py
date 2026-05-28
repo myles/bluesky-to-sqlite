@@ -1,6 +1,6 @@
 import datetime
 from typing import TypedDict, Union
-from atproto_client.models.com.atproto.repo.list_records import Record as ListRecordsRecord
+
 import ciso8601
 from atproto_client.models.app.bsky.actor.defs import (
     ProfileView,
@@ -8,6 +8,9 @@ from atproto_client.models.app.bsky.actor.defs import (
     ProfileViewDetailed,
 )
 from atproto_client.models.app.bsky.feed.defs import PostView
+from atproto_client.models.com.atproto.repo.list_records import (
+    Record as ListRecordsRecord,
+)
 from atproto_client.models.string_formats import DateTime
 
 
