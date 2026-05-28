@@ -46,18 +46,24 @@ def cli():
 
 @cli.command("auth")
 @cli_option_auth_path
-def cli_auth(auth_file_path: Path):
+@click.option(
+    "--overwrite",
+    is_flag=True,
+    help="Overwrite the authentication file if it already exists.",
+)
+def cli_auth(auth_file_path: Path, overwrite: bool = False):
     """Save your Bluesky authentication credentials to a JSON file."""
-    if auth_file_path.exists():
+    if auth_file_path.exists() and overwrite is False:
         click.echo(f"Authentication file {auth_file_path} already exists.")
-        if not click.confirm("Do you want to overwrite it?"):
+        overwrite = click.confirm("Do you want to overwrite it?")
+        if not overwrite:
             click.echo("Aborting authentication setup.")
             return
 
     click.echo("Please enter your Bluesky authentication credentials.")
 
     pds_url = click.prompt(
-        "PDS URL (e.g. https://bsky.app)", default="https://bsky.app"
+        "PDS URL (e.g. https://bsky.social)", default="https://bsky.social"
     )
 
     username = click.prompt("Username (email or handle)")
@@ -84,7 +90,11 @@ def cli_auth(auth_file_path: Path):
         return
 
     create_auth_file(
-        auth_file_path, pds_url=pds_url, username=username, password=password
+        auth_file_path,
+        pds_url=pds_url,
+        username=username,
+        password=password,
+        overwrite=True,
     )
     click.echo(f"Authentication credentials saved to {auth_file_path}")
 
