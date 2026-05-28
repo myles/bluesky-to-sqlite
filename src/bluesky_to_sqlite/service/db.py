@@ -3,7 +3,7 @@ from typing import List, Union
 
 from sqlite_utils.db import Database, Table
 
-from .parsers import ParsedPost, ParsedProfile
+from .parsers import ParsedPost, ParsedProfile, ParsedLike
 
 
 def open_database(db_file_path: Path) -> Database:
@@ -60,6 +60,7 @@ def build_database(db: Database):
     if posts_table.exists() is False:
         posts_table.create(
             columns={
+                "uri": str,
                 "cid": str,
                 "author_did": str,
                 "record_text": str,
@@ -119,13 +120,10 @@ def save_following(following: List[tuple[str, str]], db: Database):
     )
 
 
-def save_likes(likes: List[tuple[str, str, Union[str, None]]], db: Database):
+def save_likes(likes: List[ParsedLike], db: Database):
     """Save a list of likes to the database."""
     likes_table = get_table("likes", db)
     likes_table.upsert_all(
-        [
-            {"liker_did": l[0], "post_cid": l[1], "liked_at": l[2]}
-            for l in likes
-        ],
+        [like for like in likes],
         pk=["liker_did", "post_cid"],
     )

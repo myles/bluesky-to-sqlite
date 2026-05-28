@@ -1,7 +1,7 @@
 from atproto import Client
 from sqlite_utils import Database
 
-from .service.client import get_followers, get_follows, get_likes
+from .service.client import get_followers, get_follows, get_likes, get_posts
 from .service.db import (
     build_database,
     save_following,
@@ -9,7 +9,7 @@ from .service.db import (
     save_posts,
     save_profiles,
 )
-from .service.parsers import parse_post, parse_profile
+from .service.parsers import parse_post, parse_profile, parse_like
 
 
 def save_followers(db: Database, client: Client):
@@ -77,16 +77,21 @@ def save_like_posts(db: Database, client: Client):
 
     likes = get_likes(client.me.did, client)
 
+    post_uris = []
     likes_to_save = []
+    for like in likes:
+        post_uris.append(like.value.subject.uri)  # type: ignore
+        likes_to_save.append(parse_like(actor_did=client.me.did, like=like))
+
+    posts = get_posts(post_uris, client)
+
     posts_to_save = []
     profiles_to_save = []
-    for like in likes:
-        likes_to_save.append((like.post.cid, client.me.did, None))
-
-        parsed_post = parse_post(like.post)
+    for post in posts:
+        parsed_post = parse_post(post)
         posts_to_save.append(parsed_post)
 
-        parsed_author = parse_profile(like.post.author)
+        parsed_author = parse_profile(post.author)
         profiles_to_save.append(parsed_author)
 
     save_profiles(profiles_to_save, db)

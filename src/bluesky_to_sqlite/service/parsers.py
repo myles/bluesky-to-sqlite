@@ -1,6 +1,7 @@
 import datetime
 from typing import TypedDict, Union
-
+from atproto_client.models.com.atproto.repo.list_records import Record as ListRecordsRecord
+import ciso8601
 from atproto_client.models.app.bsky.actor.defs import (
     ProfileView,
     ProfileViewBasic,
@@ -10,14 +11,16 @@ from atproto_client.models.app.bsky.feed.defs import PostView
 from atproto_client.models.string_formats import DateTime
 
 
-def parse_datetime(dt: Union[DateTime, None]) -> Union[datetime.datetime, None]:
+def parse_datetime(
+    timestamp: Union[DateTime, None],
+) -> Union[datetime.datetime, None]:
     """
     Parses a DateTime object into a string that can be easily stored in a
     SQLite database.
     """
-    if dt is None:
+    if timestamp is None:
         return None
-    return datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S.%fZ")
+    return ciso8601.parse_datetime(timestamp)
 
 
 class ParsedPost(TypedDict, total=False):
@@ -26,7 +29,7 @@ class ParsedPost(TypedDict, total=False):
     author_did: str
     record_text: str
     record_created_at: Union[datetime.datetime, None]
-    index_at: Union[datetime.datetime, None]
+    indexed_at: Union[datetime.datetime, None]
 
 
 def parse_post(post: PostView) -> ParsedPost:
@@ -44,7 +47,25 @@ def parse_post(post: PostView) -> ParsedPost:
         "author_did": post.author.did,
         "record_text": record_text,
         "record_created_at": record_created_at,
-        "index_at": parse_datetime(post.indexed_at),
+        "indexed_at": parse_datetime(post.indexed_at),
+    }
+
+
+class ParsedLike(TypedDict, total=False):
+    liker_did: str
+    post_cid: str
+    liked_at: Union[datetime.datetime, None]
+
+
+def parse_like(actor_did: str, like: ListRecordsRecord) -> ParsedLike:
+    """
+    Parses a Like object into a dictionary that can be easily stored in a
+    SQLite database.
+    """
+    return {
+        "liker_did": actor_did,
+        "post_cid": like.value.subject.cid,  # type: ignore
+        "liked_at": parse_datetime(like.value.created_at),  # type: ignore
     }
 
 
